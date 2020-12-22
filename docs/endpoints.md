@@ -37,3 +37,14 @@ Saída:
 - user: dados do usuário
 
 ============================================================
+
+# GET (/searchUser?search=) (JSON)
+* Buscar usuários
+
+Entrada (URL):
+- search (*): nome do usuário a ser buscado
+
+Saída:
+- success: informa se a operação ocorreu com sucesso
+- message: mensagem informativa da operação
+- users: usuários encontrados

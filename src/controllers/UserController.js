@@ -1,6 +1,8 @@
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 const database = require('../database/connection');
+const multerConfig = require('../config/multer');
 const { isEmail, isEmpty } = require('../utils');
 
 module.exports = {
@@ -89,7 +91,38 @@ module.exports = {
     };
   },
 
-  getLastUsers: async (req, res) => {
+  profileUser: async (req, res) => {
+
+    const { userId } = req.params;
+
+    const user = await database('users')
+      .select(['*'])
+      .where({ id: userId })
+      .first();
+
+    if (!!user) {
+      delete user.password;
+
+      const feed = await database('feed')
+        .select(['*'])
+        .where({ user_id: userId })
+        .orderBy('id', 'desc');;
+
+      return res.json({
+        success: true,
+        message: 'OK',
+        user,
+        feed
+      });
+    }
+
+    return {
+      success: false,
+      message: 'Usuário não encontrado'
+    };
+  },
+
+  getLastUsers: async () => {
 
     const users = await database('users')
       .select(['id', 'name', 'title', 'image'])
@@ -114,13 +147,13 @@ module.exports = {
       .limit(9)
       .offset(offset);
 
-    const totalUsers = await database('users').count('id');
+    const totalUsers = await database('users').count('id').first();
 
     return res.json({
       success: true,
       message: 'OK',
       users,
-      totalUsers
+      totalPages: Math.ceil(totalUsers['count(`id`)'] / 9)
     });
   },
 
@@ -138,6 +171,116 @@ module.exports = {
       success: true,
       message: 'OK',
       users
+    });
+  },
+
+  deleteProfileImage: async (req, res) => {
+
+    const { userId } = req;
+
+    const updated = await database('users')
+      .where({ id: userId })
+      .update({ image: '' });
+
+    if (updated === 1) return res.json({
+      success: true,
+      message: 'Foto removida com sucesso',
+    });
+    return res.json({
+      success: false,
+      message: 'Ocorreu um erro ao remover a foto'
+    });
+  },
+
+  updateProfileImage: async (req, res) => {
+    const upload = multer(multerConfig).single('file');
+    return upload(req, res, async err => {
+
+      if (err) return res.json({
+        success: false,
+        message: 'Erro ao fazer upload de arquivo'
+      });
+
+      const updated = await database('users')
+        .where({
+          id: req.userId
+        })
+        .update({
+          image: `http://localhost:8081/images/${req.file.filename}`
+        });
+
+      if (updated === 1) return res.json({
+        success: true,
+        message: 'Foto atualizada com sucesso',
+      });
+      return res.json({
+        success: false,
+        message: 'Ocorreu um erro ao atualizar a foto'
+      });
+    });
+  },
+
+  updateBackgroundImage: async (req, res) => {
+    const upload = multer(multerConfig).single('file');
+    return upload(req, res, async err => {
+
+      if (err) return res.json({
+        success: false,
+        message: 'Erro ao fazer upload de arquivo'
+      });
+
+      const updated = await database('users')
+        .where({
+          id: req.userId
+        })
+        .update({
+          background: `http://localhost:8081/images/${req.file.filename}`
+        });
+
+      if (updated === 1) return res.json({
+        success: true,
+        message: 'Foto atualizada com sucesso',
+      });
+      return res.json({
+        success: false,
+        message: 'Ocorreu um erro ao atualizar a foto'
+      });
+    });
+  },
+
+  deleteBackgroundImage: async (req, res) => {
+    const { userId } = req;
+
+    const updated = await database('users')
+      .where({ id: userId })
+      .update({ background: '' });
+
+    if (updated === 1) return res.json({
+      success: true,
+      message: 'Foto removida com sucesso',
+    });
+    return res.json({
+      success: false,
+      message: 'Ocorreu um erro ao remover a foto'
+    });
+  },
+
+  updateUser: async (req, res) => {
+
+    const { userId } = req;
+    const { name, title } = req.body;
+
+    const updated = await database('users')
+      .where({ id: userId })
+      .update({ name, title });
+
+    if (updated === 1) return res.json({
+      success: true,
+      message: 'Usuário atualizado com sucesso',
+    });
+    return res.json({
+      success: false,
+      message: 'Ocorreu um erro ao atualizar o usuário'
     });
   }
 }

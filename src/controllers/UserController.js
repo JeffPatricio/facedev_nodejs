@@ -182,10 +182,21 @@ module.exports = {
       .where({ id: userId })
       .update({ image: '' });
 
-    if (updated === 1) return res.json({
-      success: true,
-      message: 'Foto removida com sucesso',
-    });
+    if (updated === 1) {
+
+      const user = await database('users')
+        .select(['*'])
+        .where({ id: userId })
+        .first();
+
+      delete user.password;
+
+      return res.json({
+        success: true,
+        message: 'Foto removida com sucesso',
+        user
+      });
+    }
     return res.json({
       success: false,
       message: 'Ocorreu um erro ao remover a foto'
@@ -209,10 +220,21 @@ module.exports = {
           image: `http://localhost:8081/images/${req.file.filename}`
         });
 
-      if (updated === 1) return res.json({
-        success: true,
-        message: 'Foto atualizada com sucesso',
-      });
+      if (updated === 1) {
+
+        const user = await database('users')
+          .select(['*'])
+          .where({ id: req.userId })
+          .first();
+
+        delete user.password;
+
+        return res.json({
+          success: true,
+          message: 'Foto atualizada com sucesso',
+          user
+        });
+      }
       return res.json({
         success: false,
         message: 'Ocorreu um erro ao atualizar a foto'
@@ -237,10 +259,21 @@ module.exports = {
           background: `http://localhost:8081/images/${req.file.filename}`
         });
 
-      if (updated === 1) return res.json({
-        success: true,
-        message: 'Foto atualizada com sucesso',
-      });
+      if (updated === 1) {
+
+        const user = await database('users')
+          .select(['*'])
+          .where({ id: req.userId })
+          .first();
+
+        delete user.password;
+
+        return res.json({
+          success: true,
+          message: 'Foto atualizada com sucesso',
+          user
+        });
+      }
       return res.json({
         success: false,
         message: 'Ocorreu um erro ao atualizar a foto'
@@ -255,10 +288,21 @@ module.exports = {
       .where({ id: userId })
       .update({ background: '' });
 
-    if (updated === 1) return res.json({
-      success: true,
-      message: 'Foto removida com sucesso',
-    });
+    if (updated === 1) {
+
+      const user = await database('users')
+        .select(['*'])
+        .where({ id: userId })
+        .first();
+
+      delete user.password;
+
+      return res.json({
+        success: true,
+        message: 'Foto removida com sucesso',
+        user
+      });
+    }
     return res.json({
       success: false,
       message: 'Ocorreu um erro ao remover a foto'
@@ -274,10 +318,21 @@ module.exports = {
       .where({ id: userId })
       .update({ name, title });
 
-    if (updated === 1) return res.json({
-      success: true,
-      message: 'Usuário atualizado com sucesso',
-    });
+    if (updated === 1) {
+
+      const user = await database('users')
+        .select(['*'])
+        .where({ id: userId })
+        .first();
+
+      delete user.password;
+
+      return res.json({
+        success: true,
+        message: 'Usuário atualizado com sucesso',
+        user
+      });
+    }
     return res.json({
       success: false,
       message: 'Ocorreu um erro ao atualizar o usuário'

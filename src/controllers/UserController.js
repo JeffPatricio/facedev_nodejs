@@ -142,7 +142,7 @@ module.exports = {
     const offset = (page - 1) * 9;
 
     const users = await database('users')
-      .select(['id', 'name', 'title', 'image'])
+      .select(['id', 'name', 'title', 'image', 'github_user'])
       .orderBy('id', 'desc')
       .limit(9)
       .offset(offset);
